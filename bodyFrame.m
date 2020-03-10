@@ -9,9 +9,9 @@ diff_twe = abs(frame_now - frame_pre);
 L = diff_one + diff_twe;
 
 % CLAHE增强对比度
-L = adapthisteq(L,'NumTiles',[40 40],'ClipLimit',0.01);
-% adapthisteq(L,'NumTitles',[8 8],'ClipLimit',0.005) 暗处更暗，光亮更亮效果
-% 使用文档例子亮度低于当前代码。
+% L = adapthisteq(L,'NumTiles',[40 40],'ClipLimit',0.01);
+L = adapthisteq(L,'NumTiles',[8 8],'ClipLimit',0.005);  % 暗处更暗，光亮更亮效果
+% 使用文档例子亮度低于当前代码。但噪音引入少。
 
 % 高斯滤波
 H = fspecial('gaussian',3,1);  % 返回一个高斯低通滤波器
@@ -50,6 +50,10 @@ J = medfilt2(xd,[3,3]);
 % J为滤波后的图像，I是原图，m,n是处理模板大小，默认为3x3
 % 得到处理后的二值图像，接下来进行形态处理，通过结构元素将目标区域填充起来。
 
+%+++++++++++++++++++利用bwfill填充二值图像+++++++++++++++++++++++++
+% BW2 = bwfill(J,'holes',8); % 填充的很饱满，但是连通噪声一起填充了。可以放在形态学后，用来填补形态学空洞部分。
+%---------------------------END----------------------------------
+
 se = strel('disk',20);  % 创建一个半径为20的圆盘状结构元素。应该是框架,越小填充越不满。
 % 查看元素样式：
 % figure
@@ -58,7 +62,9 @@ closeBW = imclose(J,se);  % 形态学闭运算，填充目标区域
 
 % 中值滤波去噪
 J = medfilt2(closeBW,[15,15]);  % 原本为15,15
+% J = bwfill(J,'holes',8); % 填补空缺，前提是噪声处理非常好，否则反而会把噪声填补出来，且影响较大。
 % 二值化
 T = graythresh(J);
 img_BW = im2bw(J,T);
+img_BW = bwfill(img_BW,'holes',8);  % 填补
 end

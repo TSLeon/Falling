@@ -1,6 +1,6 @@
 clear;
 figure;
-img_num = 31;
+img_num = 81;
 while(img_num < 200)
     imgRoot = 'source\test3\';
     cmp_pre = imread([imgRoot,num2str(img_num),'.jpg']);
@@ -27,7 +27,7 @@ while(img_num < 200)
     set(legend,'Color','g','FontWeight','demi');
     rectangle('position',[x,y,width,heigth],'edgeColor','r');
     % rectangle('position',[1 2  5 6]) 绘制左下角位于（1,2）位置的矩形，宽度设置为5，高度设置为6。
-    saveas(gcf,['result\test3\',num2str(img_num),'.jpg']);
+    saveas(gcf,['result\test3.1\',num2str(img_num),'.jpg']);
     %end
     img_num = img_num + 10;
 end
