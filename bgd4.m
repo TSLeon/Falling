@@ -1,6 +1,6 @@
 %function img_BW = bgd4()
 	% first prepar
-	imgroot = 'source\vtest.avi\';
+	imgroot = 'source\test3\';
 	M = 60;
 	start = 1;
 	figure;	
@@ -62,7 +62,7 @@
 	out_target = rgb2gray(out_target);
 	for i=1:x
 		for j=1:y
-			if d_xy(i,j) > threshold(i,j)
+			if d_xy(i,j) > 70 % threshold(i,j)
 				out_target(i,j) = 255;
 			else
 				out_target(i,j) = 0;
