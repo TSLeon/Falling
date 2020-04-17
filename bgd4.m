@@ -1,4 +1,5 @@
 %function img_BW = bgd4()
+% gray image function
 	% first prepar
 	imgroot = 'source\test3\';
 	M = 60;

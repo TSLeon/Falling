@@ -1,4 +1,5 @@
 function out_img = bgd3(I)
+% real image function
 imgroot = 'source\test3\';
 [x,y,z] = size(imread([imgroot,num2str(1),'.jpg']));
 frame_all = zeros(x,y,z);
