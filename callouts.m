@@ -1,3 +1,4 @@
+% 目标标注函数，原版
 function [x,y,width,heigth,centroid_y,sum] = callouts(BW)
 [bw,n] = bwlabel(BW,8);  % 寻找所有连通域并标注，按8连通寻找，bw为标记后图片，n为连通域个数
 props = regionprops(bw);

@@ -1,3 +1,4 @@
+% 提取目标函数原版
 function img_BW = bodyFrame(background,target_aim)
 % 灰度化
 frame_pre = rgb2gray(background);

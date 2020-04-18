@@ -1,3 +1,4 @@
+% 求倒数第二大连通域
 function threshold = sortArea(source,lim)
 num = [];
 for i = 1:lim

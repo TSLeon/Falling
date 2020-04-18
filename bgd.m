@@ -1,3 +1,4 @@
+% 灰度图做计算的背景差分法
 clear
 imgroot = 'source\test3\';
 % M>30+inter
