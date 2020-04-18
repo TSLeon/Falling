@@ -1,6 +1,6 @@
 % gray imge, just update background, use gaussian before difference
 imgroot = 'source\test3\';
-M = 4;
+M = 60;
 start = 1;
 W_self = fspecial('gaussian',3,0.5); % 1/16 * [1 2 1;2 4 2;1 2 1];
 figure;	
@@ -10,8 +10,10 @@ u_xy = int16(zeros(x,y,z));
 u_xy = rgb2gray(u_xy);
 for t=start:M
 	u_temp = imread([imgroot,num2str(t),'.jpg']);
-	u_temp = rgb2gray(u_temp);
 	u_temp = imfilter(u_temp,W_self);
+    u_temp = rgb2gray(u_temp);
+    u_temp = medfilt2(u_temp,[3,3]);
+	% u_temp = imfilter(u_temp,W_self);
 	u_xy = u_xy + int16(u_temp);
 end
 % check data
@@ -22,23 +24,29 @@ alpha = 0.2; % between 0-1
 % -------------------------------------------------------------------------------------------------loop
 for k=1:100
 	I = imread([imgroot,num2str(M+k),'.jpg']);	
-	I = rgb2gray(I);
 	I = imfilter(I,W_self);
+    I = rgb2gray(I);
+    I = adapthisteq(I,'NumTiles',[8 8],'ClipLimit',0.005);
+    I = medfilt2(I,[3,3]);
+	% I = imfilter(I,W_self);
 	% make diff to get moving target
 	%u_xy = imfilter(uint8(u_xy),W_self);
 	d_xy = abs(u_xy - int16(I));  %----------------------------------------------------------------outplay	
 	% get outplay
 	out_target = uint8(zeros(x,y,z));
 	out_target = rgb2gray(out_target);
-	for i=1:x
-		for j=1:y
-			if d_xy(i,j) > threshold % threshold(i,j)
-				out_target(i,j) = 255;
-			else
-				out_target(i,j) = 0;
-			end
-		end
-	end
+    otsu_t = graythresh(uint8(d_xy));
+    for i=1:x
+        for j=1:y
+            if d_xy(i,j) > threshold % threshold(i,j)
+                out_target(i,j) = 255;
+            else
+                out_target(i,j) = 0;
+            end
+        end
+    end
+    otsu_i = im2bw(uint8(d_xy), otsu_t);
+    otsu_t = imbinarize(uint8(d_xy)); % 二值化处理默认情况下使用otsu方法。
 	%----------------------------------------------------------------------------------------------gaussian
 %	W_default = fspecial('gaussian');
 %	W_auto = fspecial('gaussian',3,1);
@@ -77,8 +85,12 @@ for k=1:100
 		end
 	end
 	% ---------------------------------------------------------------------------------------------show
-	imshow(out_target);
+	subplot(1,2,1);
+    imshow(otsu_t);
 	title(k);
+    subplot(1,2,2);
+    imshow(otsu_i);
 	pause(0.1);
+    imwrite(otsu_i,['test2\ot',num2str(k),'.jpg']);
 end
 
