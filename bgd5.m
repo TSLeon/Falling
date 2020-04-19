@@ -12,6 +12,7 @@ for t=start:M
 	u_temp = imread([imgroot,num2str(t),'.jpg']);
 	u_temp = imfilter(u_temp,W_self);
     u_temp = rgb2gray(u_temp);
+    u_temp = adapthisteq(u_temp,'NumTiles',[8 8],'ClipLimit',0.005);
     u_temp = medfilt2(u_temp,[3,3]);
 	% u_temp = imfilter(u_temp,W_self);
 	u_xy = u_xy + int16(u_temp);
@@ -91,6 +92,6 @@ for k=1:100
     subplot(1,2,2);
     imshow(otsu_i);
 	pause(0.1);
-    imwrite(otsu_i,['test2\ot',num2str(k),'.jpg']);
+    imwrite(otsu_i,['test2\otC',num2str(k),'.jpg']);
 end
 
