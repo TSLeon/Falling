@@ -1,8 +1,12 @@
 % 改版主函数，测试中
-clear;
-figure;
 imgRoot = 'source\test3\';
-M = 4; % 前N帧图像
+figure;
+%------------------------------------
+%videoPlayer = vision.VideoPlayer('Position',[100,100,500,400]);  % 创建一个视频播放器
+param = defaultParam();
+adparam = defaultAdparam();
+%-------------------------------------
+M = 1; % 前N帧图像
 start = 1; % 开始帧
 alpha = 0.2; % between 0-1
 img_num = M+1;
@@ -22,7 +26,7 @@ end
 u_xy = u_xy/(M-start+1);
 while(img_num <= 220)
     I = imread([imgRoot,num2str(img_num),'.jpg']);
-    [u_xy,bw_pre] = bodyFrame2(u_xy,I,alpha,W_self,img_num);
+    [u_xy,bw_pre,fgMask] = bodyFrame2(u_xy,I,alpha,W_self,img_num);
     for i=1:x
         for j=1:y
             if u_xy(i,j) > 255
@@ -31,13 +35,41 @@ while(img_num <= 220)
         end
     end
     labelStruct = callouts2(bw_pre);
-    image(I);
-    legend = text(labelStruct.x,labelStruct.y,['状态：','zheng']);
-    set(legend,'Color','g','FontWeight','demi');
-    rectangle('position',[labelStruct.x,labelStruct.y,labelStruct.width,labelStruct.heigth],'edgeColor','r');
+    %image(I);
+    %legend = text(labelStruct.x,labelStruct.y,['状态：','zheng']);
+    %set(legend,'Color','g','FontWeight','demi');
+    %rectangle('position',[labelStruct.x,labelStruct.y,labelStruct.width,labelStruct.heigth],'edgeColor','r');
     %imshow(bw_pre);
     %title(img_num);
     %pause(0.5);
-    saveas(gcf,['result\test3\',num2str(img_num),'.jpg']);
+    %saveas(gcf,['result\test3\',num2str(img_num),'.jpg']);
+    %step(videoPlayer,I);
+    %---------------------------------------------------
+    adparam.detectedLocation = [labelStruct.x,labelStruct.y,labelStruct.width,labelStruct.heigth];
+    [adparam, labelInfo] = trackSingleObject(param,adparam);
+    %combinedImage = max(repmat(fgMask, [1,1,3]), im2single(I));
+    if ~isempty(labelInfo.trackedLocation)
+        shape = 'rectangle';
+        region = labelInfo.trackedLocation;
+        combinedImage = insertObjectAnnotation(I, shape, region,labelInfo.label,'LineWidth',5);
+        %videoPlayer(combinedImage);
+        imshow(combinedImage);
+        disp(region);
+        pause(0.1);
+    end
+    %---------------------------------------------------
     img_num = img_num + 1;
+end
+%release(videoPlayer);
+function param = defaultParam
+param.motionModel           = 'ConstantAcceleration';
+param.initialLocation       = 'Same as first detection';
+param.initialEstimateError  = 1E5 * ones(1, 3);
+param.motionNoise           = [25, 10, 1];
+param.measurementNoise      = 25;
+param.segmentationThreshold = 0.05;
+end
+function adparam = defaultAdparam
+adparam.isTrackInitialized = false;
+adparam.isObjectDetected = true;
 end
