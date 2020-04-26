@@ -1,6 +1,6 @@
 % gray imge, just update background, use gaussian before difference
-imgroot = 'source\test3\';
-M = 60;
+imgroot = 'source\test2\';
+M = 1;
 start = 1;
 W_self = fspecial('gaussian',3,0.5); % 1/16 * [1 2 1;2 4 2;1 2 1];
 figure;	
