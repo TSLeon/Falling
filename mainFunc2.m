@@ -2,7 +2,7 @@
 imgRoot = 'source\test3\';
 figure;
 %------------------------------------
-%videoPlayer = vision.VideoPlayer('Position',[100,100,500,400]);  % 创建一个视频播放器
+videoPlayer = vision.VideoPlayer;  % 创建一个视频播放器
 param = defaultParam();
 adparam = defaultAdparam();
 %-------------------------------------
@@ -26,7 +26,7 @@ end
 u_xy = u_xy/(M-start+1);
 while(img_num <= 220)
     I = imread([imgRoot,num2str(img_num),'.jpg']);
-    [u_xy,bw_pre,fgMask] = bodyFrame2(u_xy,I,alpha,W_self,img_num);
+    [u_xy,bw_pre] = bodyFrame2(u_xy,I,alpha,W_self);
     for i=1:x
         for j=1:y
             if u_xy(i,j) > 255
@@ -35,32 +35,28 @@ while(img_num <= 220)
         end
     end
     labelStruct = callouts2(bw_pre);
-    %image(I);
-    %legend = text(labelStruct.x,labelStruct.y,['状态：','zheng']);
-    %set(legend,'Color','g','FontWeight','demi');
-    %rectangle('position',[labelStruct.x,labelStruct.y,labelStruct.width,labelStruct.heigth],'edgeColor','r');
-    %imshow(bw_pre);
-    %title(img_num);
-    %pause(0.5);
-    %saveas(gcf,['result\test3\',num2str(img_num),'.jpg']);
-    %step(videoPlayer,I);
     %---------------------------------------------------
-    adparam.detectedLocation = [labelStruct.x,labelStruct.y,labelStruct.width,labelStruct.heigth];
+    if labelStruct.x == y && labelStruct.y == x
+        adparam.isObjectDetected = false;
+    else
+        adparam.isObjectDetected = true;
+    end
+    adparam.detectedLocation = [labelStruct.x,labelStruct.y,...
+        labelStruct.width,labelStruct.heigth];
     [adparam, labelInfo] = trackSingleObject(param,adparam);
-    %combinedImage = max(repmat(fgMask, [1,1,3]), im2single(I));
     if ~isempty(labelInfo.trackedLocation)
         shape = 'rectangle';
         region = labelInfo.trackedLocation;
-        combinedImage = insertObjectAnnotation(I, shape, region,labelInfo.label,'LineWidth',5);
-        %videoPlayer(combinedImage);
+        combinedImage = insertObjectAnnotation(I, shape, region,...
+            {labelInfo.label},'FontSize',50,'LineWidth',5);
         imshow(combinedImage);
-        disp(region);
-        pause(0.1);
+        %videoPlayer(combinedImage);
+        saveas(gcf,['result\test3\',num2str(img_num),'.jpg'])
     end
     %---------------------------------------------------
     img_num = img_num + 1;
 end
-%release(videoPlayer);
+release(videoPlayer);
 function param = defaultParam
 param.motionModel           = 'ConstantAcceleration';
 param.initialLocation       = 'Same as first detection';
