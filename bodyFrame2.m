@@ -1,9 +1,9 @@
 % 改版提取目标函数，测试中
 function [BG_IMG,BW_IMG] = bodyFrame2(u_xy,I,alpha,W_self)
-I = imfilter(I,W_self);
+I = imfilter(I,W_self);  %  gausiian filter
 I = rgb2gray(I);
 I = adapthisteq(I,'NumTiles',[8 8],'ClipLimit',0.005);  % CLAHE
-I = medfilt2(I,[3,3]);
+I = medfilt2(I,[3,3]);  % mediam filter
 d_xy = abs(u_xy - int16(I));  % 背景差分
 L = imbinarize(uint8(d_xy));  % 二值化，默认使用otsu
 % CLAHE增强对比度

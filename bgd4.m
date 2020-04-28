@@ -51,7 +51,7 @@
 	% compute threshold
 	%k = 1;
 	peta = 2;
-	for k=1:60
+	for k=1:1
 	threshold = u_diff + peta*int16(diff_std);	
 	% get present image
 	I = imread([imgroot,num2str(M+k),'.jpg']);	
@@ -63,7 +63,7 @@
 	out_target = rgb2gray(out_target);
 	for i=1:x
 		for j=1:y
-			if d_xy(i,j) > 70 % threshold(i,j)
+			if d_xy(i,j) > threshold(i,j)
 				out_target(i,j) = 255;
 			else
 				out_target(i,j) = 0;
@@ -104,11 +104,17 @@
         end
     end
 	%-----------------------------------------------------------------------------------------show2
-	imshow(L);
+	subplot(2,2,1);
+    imshow(uint8(out_target));
+    saveas(gcf,['test\out',num2str(k),'.jpg']);
+    subplot(2,2,2);
+    imshow(L);
 	saveas(gcf,['test\L',num2str(k),'.jpg']);
-	imshow(filteredBW);
+	subplot(2,2,3);
+    imshow(filteredBW);
 	saveas(gcf,['test\filteredBW',num2str(k),'.jpg']);
-	imshow(uSobel);
+	subplot(2,2,4);
+    imshow(uSobel);
 	saveas(gcf,['test\uSobel',num2str(k),'.jpg']);
 	%------------------------------------------------------------------------------------------show
 	%subplot(3,3,1);
