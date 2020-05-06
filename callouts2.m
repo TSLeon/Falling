@@ -36,7 +36,7 @@ else
         labelStruct.heigth = boundingbox(1,4);
         centroid = props(flag).Centroid;
         labelStruct.centroid_y = centroid(1,2);
-        else  % 两个连通域相差小于10倍，以下代码有待测试。
+    else  % 两个连通域相差小于10倍，以下代码有待测试。
         centroid_1 = props(1).Centroid;
         centroid_2 = props(2).Centroid;
         x_1 = centroid_1(1,1);

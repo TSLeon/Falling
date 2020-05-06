@@ -9,8 +9,9 @@ adparam = defaultAdparam();
 M = 1; % 前N帧图像
 start = 1; % 开始帧
 alpha = 0.2; % between 0-1
+shape = 'rectangle';
 img_num = M+1;
-W_self = fspecial('gaussian',3,0.5); % 高斯模板
+W_self = 1/16*[1,2,1;2,4,2;1,2,1];%fspecial('gaussian',3,0.5); % 高斯模板
 [x,y,z] = size(imread([imgRoot,num2str(1),'.jpg']));
 u_xy = int16(zeros(x,y,z));
 u_xy = rgb2gray(u_xy);
@@ -24,34 +25,69 @@ for t=start:M
 	u_xy = u_xy + int16(u_temp);
 end
 u_xy = u_xy/(M-start+1);
+count = 1;
+pre_label = 'Inital';
 while(img_num <= 220)
     I = imread([imgRoot,num2str(img_num),'.jpg']);
-    [u_xy,bw_pre] = bodyFrame2(u_xy,I,alpha,W_self);
-    for i=1:x
-        for j=1:y
-            if u_xy(i,j) > 255
-                u_xy(i,j) = 255;
-            end
+    if count == 1 || count == 10
+        [u_xy,bw_pre] = bodyFrame2(u_xy,I,alpha,W_self);
+        labelStruct = callouts2(bw_pre);
+        %---------------------------------------------------
+        if labelStruct.x == y && labelStruct.y == x
+            adparam.isObjectDetected = false;
+        else
+            adparam.isObjectDetected = true;
         end
-    end
-    labelStruct = callouts2(bw_pre);
-    %---------------------------------------------------
-    if labelStruct.x == y && labelStruct.y == x
-        adparam.isObjectDetected = false;
+        adparam.detectedLocation = [labelStruct.x,labelStruct.y,...
+            labelStruct.width,labelStruct.heigth];
+        [adparam, labelInfo] = trackSingleObject(param,adparam);
+        if ~isempty(labelInfo.trackedLocation)
+            region = labelInfo.trackedLocation;
+            %combinedImage = insertObjectAnnotation(I, shape, region,...
+            %    {labelInfo.label},'FontSize',50,'LineWidth',5);
+            %imshow(combinedImage);
+            %videoPlayer(combinedImage);
+            %saveas(gcf,['result\test3\',num2str(img_num),'.jpg'])
+        end
+        if count == 1
+            pre_centroid = labelStruct.centroid_y;
+            pre_width = region(3);
+            pre_height = region(4);
+            count = count + 1;
+        else
+            body_scale = region(4)/region(3);
+            centroid_diff = abs(labelStruct.centroid_y - pre_centroid);
+            if body_scale <=1.5 && centroid_diff >=10
+                if strcmp(pre_label,'Falled')
+                    self_label = 'Stand up';
+                else
+                    self_label = 'Falled';
+                end
+            else
+                if strcmp(pre_label,'Falled')
+                    self_label = 'Falled';
+                else
+                    self_label = 'Normal';
+                end
+            end
+            pre_label = self_label;
+            %combinedImage = insertObjectAnnotation(I, shape, region,...
+            %    {self_label},'FontSize',50,'LineWidth',5);
+            imshow(I);
+            title(img_num);
+            pre_centroid = labelStruct.centroid_y;
+            pre_width = region(3);
+            pre_height = region(4);
+            count = 2;
+        end
     else
-        adparam.isObjectDetected = true;
-    end
-    adparam.detectedLocation = [labelStruct.x,labelStruct.y,...
-        labelStruct.width,labelStruct.heigth];
-    [adparam, labelInfo] = trackSingleObject(param,adparam);
-    if ~isempty(labelInfo.trackedLocation)
-        shape = 'rectangle';
-        region = labelInfo.trackedLocation;
-        combinedImage = insertObjectAnnotation(I, shape, region,...
-            {labelInfo.label},'FontSize',50,'LineWidth',5);
-        imshow(combinedImage);
-        %videoPlayer(combinedImage);
-        saveas(gcf,['result\test3\',num2str(img_num),'.jpg'])
+        %imshow(I);
+        I = imfilter(I,W_self);
+        I = rgb2gray(I);
+        I = adapthisteq(I,'NumTiles',[8 8],'ClipLimit',0.005);
+        I = medfilt2(I,[3,3]);
+        u_xy = alpha*int16(I) + (1-alpha)*u_xy;
+        count = count + 1;
     end
     %---------------------------------------------------
     img_num = img_num + 1;
