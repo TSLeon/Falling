@@ -1,5 +1,5 @@
 % 改版目标标注函数，测试中
-function labelStruct = callouts2(BW)
+function labelStruct = callouts2(BW,labelStruct)
 [bw,n] = bwlabel(BW,8);
 props = regionprops(bw);
 if(n==1)
@@ -11,11 +11,11 @@ if(n==1)
     centroid = props.Centroid;
     labelStruct.centroid_y = centroid(1,2);  % 只判断重心变化所以只需要y值
     labelStruct.sum = bwarea(bw);
-else
+elseif n>=2
     if n~=2
         diff_area = sortArea(props,n);
         bw2 = bwareaopen(BW,diff_area,8);
-        [bw,n] = bwlabel(bw2,8);
+        [bw,~] = bwlabel(bw2,8);
     end
     props = regionprops(bw);
     if(props(1).Area > props(2).Area)
