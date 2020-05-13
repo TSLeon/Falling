@@ -1,6 +1,6 @@
 % 改版主函数3，测试跌倒判断
-imgRoot = 'source\vtest.avi\';
-videoReader = VideoReader('vtest.avi');
+imgRoot = 'source\test3\';
+videoReader = VideoReader('test3.mp4');
 figure;
 %------------------------------------
 %videoPlayer = vision.VideoPlayer;  % 创建一个视频播放器
@@ -84,15 +84,15 @@ while hasFrame(videoReader)
                             if centroid_diff > 0 % 重心向上
                                 self_label = 'Falled';
                                 %disp(1);
-                                disp(old_data);
-                                disp(present_data);
+                                %disp(old_data);
+                                %disp(present_data);
                                 %disp(labelStruct.centroid_y);
                                 %disp(status_list(1).centroid_y);
                             else % 重心向下
                                 self_label = 'Stand up';
                                 %disp(2);
-                                disp(old_data);
-                                disp(present_data);
+                                %disp(old_data);
+                                %disp(present_data);
                                 %disp(labelStruct.centroid_y);
                                 %disp(status_list(1).centroid_y);
                             end
@@ -110,17 +110,23 @@ while hasFrame(videoReader)
                     pre_label = self_label;
                     combinedImage = insertObjectAnnotation(I, shape, region,...
                         {self_label},'FontSize',50,'LineWidth',5);
+                    subplot(1,2,1);
                     imshow(combinedImage);
+                    title('1');
                 else
                     combinedImage = insertObjectAnnotation(I, shape, region,...
                         {pre_label},'FontSize',50,'LineWidth',5);
+                    subplot(1,2,1);
                     imshow(combinedImage);
+                    title('2');
                     count = count + 1;
                 end
                 imwrite(combinedImage,['test3\',num2str(imName),'.jpg'],'jpg');
             else
                 % 没有跟踪到
+                subplot(1,2,1);
                 imshow(I);
+                title('3');
                 imwrite(I,['test3\',num2str(imName),'.jpg'],'jpg');
             end
             %---------------------------------------------------
@@ -132,10 +138,15 @@ while hasFrame(videoReader)
                     labelStruct(i).y,labelStruct(i).width,...
                     labelStruct(i).heigth];
             end
-            [adparam, labelInfo] = trackSingleObject(param,adparam);
+%            [adparam, labelInfo] = trackSingleObject(param,adparam);
+            disp('into multiple');
+            disp(imName);
         end
+        subplot(1,2,2);
+        imshow(bw_pre);
     end
     imName = imName + 1;
+    pause(0.001);
 end
 %release(videoPlayer);
 function param = defaultParam

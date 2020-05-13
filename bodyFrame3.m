@@ -10,7 +10,11 @@ L = imbinarize(uint8(d_xy));
 uSobel = edge(L); % sobel
 [thr,sorh,keepapp] = ddencmp('den','wv',uSobel);
 xd = wdencmp('gbl',uSobel,'sym4',2,thr,sorh,keepapp); % Ð¡²¨
+%------------------------------------
+%mask = imopen(xd, strel('rectangle',[3, 3]));
+%------------------------------------
 closeBW = imclose(xd,se);
+%closeBW = imclose(mask, strel('rectangle',[15, 15]));
 J = medfilt2(closeBW,[3,3]); % ÖÐÖµ
 u_xy = alpha*int16(I) + (1-alpha)*u_xy;
 BG_IMG = u_xy;

@@ -17,7 +17,8 @@ elseif n>=2
     for i=1:n
         threshold_area = threshold_area + props(i).Area;
     end
-    threshold_area = threshold_area / n;
+    % threshold_area = double(int16(threshold_area / n));
+    threshold_area = floor(threshold_area / n);
     bw2 = bwareaopen(BW,threshold_area,8);
     [m_bw,m_n] = bwlabel(bw2,8);
     if m_n == 1
