@@ -34,7 +34,7 @@ elseif n>=2
     else
         m_props = regionprops(m_bw);
         target_type = 'multiple';
-        for i=1:m_n
+        for i=1:length(m_props)
             boundingbox = m_props(i).BoundingBox;
             labelStruct(i).x = boundingbox(1,1);
             labelStruct(i).y = boundingbox(1,2);

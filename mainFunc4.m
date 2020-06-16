@@ -14,7 +14,7 @@ total = M-start+1;
 back_count = total;
 shape = 'rectangle';
 W_self = 1/16*[1,2,1;2,4,2;1,2,1];
-se = strel('disk',20);
+%se = strel('disk',20);
 %-----------------------------------------
 [x,y,z] = size(imread([imgRoot,num2str(1),'.jpg']));
 u_xy = int16(zeros(x,y,z));
@@ -41,7 +41,7 @@ while hasFrame(videoReader)
             back_count = back_count - 1;
             % 求背景平均值
         end
-        [u_xy,bw_pre] = bodyFrame3(u_xy,I,alpha,W_self,se);
+        [u_xy,bw_pre] = bodyFrame4(u_xy,I,alpha,W_self);
         [labelStruct,target_type] = callouts3(bw_pre,labelStruct);
         %---------------------------------------------------
         if strcmp(target_type,'single') % 单目标
@@ -83,18 +83,8 @@ while hasFrame(videoReader)
                         if body_scale<=1.5&&abs(centroid_diff)>10
                             if centroid_diff > 0 % 重心向上
                                 self_label = 'Falled';
-                                %disp(1);
-                                %disp(old_data);
-                                %disp(present_data);
-                                %disp(labelStruct.centroid_y);
-                                %disp(status_list(1).centroid_y);
                             else % 重心向下
                                 self_label = 'Stand up';
-                                %disp(2);
-                                %disp(old_data);
-                                %disp(present_data);
-                                %disp(labelStruct.centroid_y);
-                                %disp(status_list(1).centroid_y);
                             end
                         else
                             if strcmp(pre_label,'Falled')
@@ -110,24 +100,36 @@ while hasFrame(videoReader)
                     pre_label = self_label;
                     combinedImage = insertObjectAnnotation(I, shape, region,...
                         {self_label},'FontSize',50,'LineWidth',5);
-                    subplot(1,2,1);
+                    combin = insertObjectAnnotation(I,shape,[labelStruct.x,labelStruct.y,...
+                        labelStruct.width,labelStruct.heigth],{self_label});
+                    subplot(2,2,1);
                     imshow(combinedImage);
                     title('1');
+                    subplot(2,2,2);
+                    imshow(combin);
                 else
                     combinedImage = insertObjectAnnotation(I, shape, region,...
                         {pre_label},'FontSize',50,'LineWidth',5);
-                    subplot(1,2,1);
+                    combin = insertObjectAnnotation(I,shape,[labelStruct.x,labelStruct.y,...
+                        labelStruct.width,labelStruct.heigth],{pre_label});
+                    subplot(2,2,1);
                     imshow(combinedImage);
                     title('2');
+                    subplot(2,2,2);
+                    imshow(combin);
                     count = count + 1;
                 end
-                imwrite(combinedImage,['test3\',num2str(imName),'.jpg'],'jpg');
+                imwrite(combinedImage,['test4\',num2str(imName),'.jpg'],...
+                    'jpg');
+                imwrite(combin,['test4\l',num2str(imName),'.jpg'],'jpg');
+                imwrite(bw_pre,['test4\r',num2str(imName),'.jpg'],'jpg');
             else
                 % 没有跟踪到
-                subplot(1,2,1);
+                subplot(2,2,1);
                 imshow(I);
                 title('3');
-                imwrite(I,['test3\',num2str(imName),'.jpg'],'jpg');
+                imwrite(I,['test4\',num2str(imName),'.jpg'],'jpg');
+                imwrite(bw_pre,['test4\l',num2str(imName),'.jpg'],'jpg');
             end
             %---------------------------------------------------
         else % 多目标
@@ -142,7 +144,7 @@ while hasFrame(videoReader)
             disp('into multiple');
             disp(imName);
         end
-        subplot(1,2,2);
+        subplot(2,2,3);
         imshow(bw_pre);
     end
     imName = imName + 1;

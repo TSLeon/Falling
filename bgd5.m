@@ -1,6 +1,6 @@
 % gray imge, just update background, use gaussian before difference
 imgroot = 'source\test3\';
-M = 60;
+M = 40;
 start = 1;
 W_self = fspecial('gaussian',3,0.5); % 1/16 * [1 2 1;2 4 2;1 2 1];
 figure;	
@@ -23,7 +23,7 @@ u_xy = u_xy/(M-start+1);
 threshold = 70;
 alpha = 0.2; % between 0-1
 % -------------------------------------------------------------------------------------------------loop
-for k=1:1
+for k=1:5
 	I = imread([imgroot,num2str(M+k),'.jpg']);	
 	I = imfilter(I,W_self);
     I = rgb2gray(I);
